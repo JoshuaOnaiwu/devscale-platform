@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devscale-nginx
+  labels:
+    app: devscale-nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devscale-nginx
+  template:
+    metadata:
+      labels:
+        app: devscale-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devscale-nginx-service
+spec:
+  selector:
+    app: devscale-nginx
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP

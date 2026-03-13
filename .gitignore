@@ -4,10 +4,7 @@
 *.tfstate.*
 crash.log
 
-# Terraform lock files
-.terraform.lock.hcl
-
-# Local override files
+# Terraform override files
 override.tf
 override.tf.json
 *_override.tf
