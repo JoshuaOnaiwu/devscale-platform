@@ -87,6 +87,10 @@ The platform currently includes:
 
 ![Ingress](docs/screenshots/DevScale-Kubernetes-Ingress-LoadBalancer.png)
 
+## Platform Monitoring
+
+![Grafana Metrics](docs/screenshots/DevScale-Grafana-Cluster-Metrics.png)
+
 ## Public Application Endpoint
 
 ![Application](docs/screenshots/DevScale-Public-Application-Endpoint.png)
