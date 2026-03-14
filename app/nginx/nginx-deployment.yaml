@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devscale-nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devscale-nginx
+  template:
+    metadata:
+      labels:
+        app: devscale-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
