@@ -1,0 +1,59 @@
+name: DevScale CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set Image Tag
+        run: echo "IMAGE_TAG=${GITHUB_SHA}" >> $GITHUB_ENV
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: us-east-1
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password \
+          | docker login --username AWS --password-stdin 808850079759.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Build Image
+        run: |
+          docker build -t node-app:${IMAGE_TAG} ./app/node-app
+
+      - name: Tag Image
+        run: |
+          docker tag node-app:${IMAGE_TAG} 808850079759.dkr.ecr.us-east-1.amazonaws.com/node-app-ci-cd:${IMAGE_TAG}
+
+      - name: Push Image
+        run: |
+          docker push 808850079759.dkr.ecr.us-east-1.amazonaws.com/node-app-ci-cd:${IMAGE_TAG}
+
+      - name: Clone GitOps Repo
+        run: |
+          git clone https://JoshuaOnaiwu:${{ secrets.GITOPS_TOKEN }}@github.com/JoshuaOnaiwu/devscale-platform-gitops.git
+
+      - name: Update values.yaml
+        run: |
+          cd devscale-platform-gitops/dev/node-service
+          sed -i "s|tag:.*|tag: ${IMAGE_TAG}|" values.yaml
+
+      - name: Commit & Push
+        run: |
+          cd devscale-platform-gitops
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "update image to ${IMAGE_TAG}" || echo "No changes to commit"
+          git push
